@@ -68,7 +68,7 @@ void setup()
 
 void loop()
 { 
-  /*
+  /***
   Serial.print("Frente ");
   Serial.println(distanciaFrente());
   Serial.print("Derecha ");
