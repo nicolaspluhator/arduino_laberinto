@@ -28,7 +28,7 @@
 
 // Definimos una variable p/ valor anterior
 int valor_anterior = 0;
-int distancia_muro = 20;
+int distancia_muro = 10;
 
 int sensorFrente = 0;
 int sensorDerecha = 0;
@@ -37,9 +37,8 @@ int sensorIzquierda = 0;
 void setup()
 {
   // Definimos los componentes a ocupar
-  
   /* 
-    Ultrasonicos 
+      Ultrasonicos 
   */
   
   // DERECHA
@@ -53,7 +52,7 @@ void setup()
   pinMode(echo_izq, INPUT);
   
   /*
-    Motores
+      Motores
   */
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
@@ -61,26 +60,21 @@ void setup()
   pinMode(in4, OUTPUT);
 
   /*
-    Monitor Serial
+      Monitor Serial
   */
   Serial.begin(9600);
+
+  avanzar();
+  delay(2000);
 }
 
 void loop()
 { 
-  /***
-  Serial.print("Frente ");
-  Serial.println(distanciaFrente());
-  Serial.print("Derecha ");
-  Serial.println(distanciaDerecha());
-  Serial.print("Izquierda ");
-  Serial.println(distanciaIzquierda());
-  */
   sensorDerecha = distanciaDerecha();
   sensorFrente = distanciaFrente();
   sensorIzquierda = distanciaIzquierda();
   
-  if (sensorDerecha > distancia_muro) {  // Si el camino a la derecha está libre
+  if (sensorDerecha > distancia_muro) {
     // Gira a la derecha
     if(sensorFrente < distancia_muro){
         girarDerecha();
@@ -88,12 +82,17 @@ void loop()
       girarDerecha();
       avanzar();
     }
-    //girarDerecha();
     delay(150);
-  } else if (sensorFrente > distancia_muro) {  // Si el camino recto está libre
+  } else if (sensorFrente > distancia_muro) {
     // Sigue recto
-    avanzar();
-  } else{
+    if((sensorDerecha > sensorIzquierda) or (sensorIzquierda > sensorDerecha)){
+      int velocidadDerecha = map(sensorDerecha, 10, 0 , 80, 100);
+      int velocidadIzquierda = map(sensorIzquierda, 10, 0 , 80, 100);
+      avanzar(velocidadDerecha, velocidadIzquierda);
+    }else{
+      avanzar();  
+    }
+  } else {
     // Gira a la izquierda
     if(sensorFrente < distancia_muro){
         girarIzquierda();
@@ -101,8 +100,7 @@ void loop()
       girarIzquierda();
       avanzar();
     }
-    //girarIzquierda();
-    delay(150);
+    delay(150); 
   }
 }
 
@@ -144,6 +142,15 @@ void avanzar(){
   Serial.println("Avanzar ");
   analogWrite(in1, velocidad);
   analogWrite(in3, velocidad);  
+}
+
+void avanzar(int velocidadDerecha, int velocidadIzquierda){
+  analogWrite(in2, 0);
+  analogWrite(in4, 0); 
+  delay(150);
+  Serial.println("Avanzar ");
+  analogWrite(in1, velocidadDerecha);
+  analogWrite(in3, velocidadIzquierda);  
 }
 
 void detener(){
